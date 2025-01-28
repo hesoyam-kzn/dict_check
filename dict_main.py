@@ -67,16 +67,16 @@ while True:
                 a = w['tr']
                 b = op[variant - 1][3:]
                 if a == b:
-                    print('\nYou god damned right.\n')
+                    print('\n\033[32mYou god damned right.\033[0m\n')
                     correctly = True
                 else:
-                    print('\nYou lost, filthy liar!\n')
+                    print('\n\033[33mYou lost, filthy liar!\033[0m\n')
                     correctly = True
             else:
-                print("Try once more time, wrong character. Use 1-4 digits.")
+                print("\033[31mTry once more time, wrong character. Use 1-4 digits.\033[0m")
                 continue
         else:
-            print("Try once more time, empty \\ wrong character. Use 1-4 digits.")
+            print("\033[31mTry once more time, empty \\ wrong character. Use 1-4 digits.\033[0m")
             continue
 
 
