@@ -47,6 +47,7 @@ def try_guess(c_set):
 
 # ------------- program parameters ---------------#
 # path to origin .csv with word-meaning pairs
+print(os.getcwd())
 doc_path = f"{os.getcwd()}\\test.csv"
 # path to the .csv, which we'll fill with the pair of word-meaning + counter incrementation
 guessed_path = ''
@@ -71,6 +72,7 @@ while True:
                     correctly = True
                 else:
                     print('\n\033[33mYou lost, filthy liar!\033[0m\n')
+                    print(f'\033[34m{w["word"].capitalize()} - {a.capitalize()}\033[0m\n')
                     correctly = True
             else:
                 print("\033[31mTry once more time, wrong character. Use 1-4 digits.\033[0m")
