@@ -47,7 +47,6 @@ def try_guess(c_set):
 
 # ------------- program parameters ---------------#
 # path to origin .csv with word-meaning pairs
-print(os.getcwd())
 doc_path = f"{os.getcwd()}\\test.csv"
 # path to the .csv, which we'll fill with the pair of word-meaning + counter incrementation
 guessed_path = ''
