@@ -1,0 +1,9 @@
+1. Add showing again if guess somehow failed with a slight delay
+
+2. Add creation of a new text file with results in root. It will store guessing history
+
+3. Add set selection for one round and number of guesses neede to finish
+
+4. Add sorting and not showing already shown word in round
+
+4. Visualize process in turle with cleaning guessed \ not guessed
