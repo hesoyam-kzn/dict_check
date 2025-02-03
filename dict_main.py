@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice, randint, shuffle
 import os
 import string
 
@@ -7,7 +7,7 @@ import string
 def read_raw_doc(d_path):
     lines = []
     lis = []
-    with open(doc_path, 'r', encoding='utf8') as file:
+    with open(d_path, 'r', encoding='utf8') as file:
         for f in file:
             lines.append(f.rstrip("\n"))
 
@@ -36,6 +36,7 @@ def choose_four(seq):
 # method shows you once a word and several options for answer, you need to choose a correct transation
 def try_guess(c_set):
     word = c_set[randint(0, 3)]
+    shuffle(c_set)
     print(f"Guess word {word['word'].upper()} \n")
     opts = []
     for i in range(len(c_set)):
