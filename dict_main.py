@@ -54,14 +54,17 @@ guessed_path = ''
 # ------------- parameters end ---------------#
 
 pairs = read_raw_doc(doc_path)
+guessed_per_session = dict()
+sums = 0
 
-while True:
+while sums < 15:
     cur_set = choose_four(pairs)
     w, op = try_guess(cur_set)
 
     correctly = False
     while not correctly:
         us_in = input(f'\nHow to translate? \n')
+        tmp_tup = (w["word"], w["tr"])
         if len(us_in) > 0 and us_in.isdigit():
             variant = int(us_in)
             if us_in in '1234':
@@ -70,16 +73,24 @@ while True:
                 if a == b:
                     print('\n\033[32mYou god damned right.\033[0m\n')
                     correctly = True
+                    guessed_per_session[tmp_tup] = guessed_per_session.setdefault(tmp_tup, 0) + 1
+                    sums += 1
                 else:
                     print('\n\033[33mYou lost, filthy liar!\033[0m\n')
                     print(f'\033[34m{w["word"].capitalize()} - {a.capitalize()}\033[0m\n')
                     correctly = True
+                    guessed_per_session[tmp_tup] = guessed_per_session.setdefault(tmp_tup, 0)
             else:
                 print("\033[31mTry once more time, wrong character. Use 1-4 digits.\033[0m")
                 continue
         else:
             print("\033[31mTry once more time, empty \\ wrong character. Use 1-4 digits.\033[0m")
             continue
-
-
+else:
+    print("\033[1m-------------------------------------------\033[0m")
+    print("\033[1m--------\033[5m\033[33mSession finished for today\033[0m\033[0m---------\033[0m")
+    print("\033[1m-------------------------------------------\033[0m")
+    print("\033[1m\033[36mSummary:\033[0m\033[0m")
+    for g, u in guessed_per_session.items():
+        print(f'{g[0]} ({g[1]}) +{u}')
 
