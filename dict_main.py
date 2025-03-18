@@ -38,13 +38,21 @@ def clear_progress(args):
                 print("Continuing with existing data about learning\n")
 
 
-def log_file_work(file):
-    if path.exists(file):
-        return open(file, "a", encoding="utf-8")
+def log_file_work(guessed_pair, inventory):
+    if guessed_pair in inventory.keys():
+        inventory[guessed_pair] += 1
     else:
-        return open(file, "w+", encoding="utf-8")
+        inventory.setdefault(tmp_tup, 1)
+    return inventory
 
 
+def log_file_parse(file):
+    words = {}
+    f = open(file, "r", encoding="utf-8")
+    for st in f:
+        words.setdefault(tuple(st[:st.index(":")].split(",")),int(st[st.index(":")+1:].rstrip()))
+    f.close()
+    return words
 
 
 def choose_four(seq):
@@ -56,7 +64,7 @@ def choose_four(seq):
     return res
 
 
-# method shows you one a word and several options for answer, you need to choose a correct transation
+# method shows you one a word and several options for answer, you need to choose a correct translation
 def try_guess(c_set):
     word = c_set[randint(0, 3)]
     shuffle(c_set)
@@ -74,12 +82,11 @@ def try_guess(c_set):
 pairs = read_raw_doc(doc_path)
 guessed_per_session = dict()
 sums = 0
-log = log_file_work(log_name)
+logged = log_file_parse(log_name) if path.exists(log_name) else dict()
 
-while sums < 5:
+while sums < 15:
     cur_set = choose_four(pairs)
     w, op = try_guess(cur_set)
-
     correctly = False
     while not correctly:
         us_in = input(f'\nHow to translate? \n')
@@ -92,6 +99,7 @@ while sums < 5:
                 if a == b:
                     print('\n\033[32mYou god damn right.\033[0m\n')
                     correctly = True
+                    logged = log_file_work(tmp_tup, logged)
                     guessed_per_session[tmp_tup] = guessed_per_session.setdefault(tmp_tup, 0) + 1
                     sums += 1
                 else:
@@ -114,6 +122,6 @@ else:
         print(f'{g[0]} ({g[1]}) +{u}')
 
 # Adding files to logfile.txt for measuring progress and filtering
-for k,v in guessed_per_session.items():
-    log.write(f'{k[0]},{k[1]}:{v}\n')
-log.close()
+with open(log_name, "w", encoding="utf-8") as final_log:
+    for k,v in logged.items():
+        final_log.write(f'{k[0]},{k[1]}:{v}\n')
