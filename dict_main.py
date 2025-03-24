@@ -4,15 +4,13 @@ from os import path, remove
 
 
 # ------------- program parameters ---------------#
-# path to origin .csv with word-meaning pairs
-doc_path = f"{os.getcwd()}\\test.csv"
-# path to the .csv, which we'll fill with the pair of word-meaning + counter incrementation
-guessed_path = ''
-log_name = "logfile.txt"
+doc_path = f"{os.getcwd()}\\test.csv" # Path to origin .csv with word-meaning pairs
+log_name = "logfile.txt" # Path to a log file, where current progress will be stored
+max_repeats = 5 # Maximum times you need guess the word
 # ------------- parameters end ---------------#
 
 # reading rows from the passed .csv and saving them into the list of 2-element tuples
-def read_raw_doc(d_path):
+def read_raw_doc(d_path, length):
     lines = []
     lis = []
     with open(d_path, 'r', encoding='utf8') as file:
@@ -22,9 +20,28 @@ def read_raw_doc(d_path):
     for line in lines:
         m, k = line.split(',')
         lis.append({"word": m, "tr": k})
-
     file.close()
-    return lis
+    shuffle(lis)
+    return lis[:length], tuple(lis)
+
+
+def check_limit_reached(pair, logged_dic, repeats):
+    if tuple([pair["word"], pair["tr"]]) in logged_dic.keys():
+        if logged_dic[tuple([w["word"], w["tr"]])] == repeats:
+            return True
+        else:
+            return False
+    return False
+
+
+#Most likely won't be used. Yet if someday you will repeat all words max_repeats times - this function will output congrats.
+def check_all_words_learned(logged_dic, learning_pairs, repeats):
+    if len(logged_dic) == len(learning_pairs):
+        if all(map(lambda x: logged_dic[x] == repeats, logged_dic)):
+            return True
+        else:
+            return False
+    return False
 
 
 # Erasing existing progress data file (TODO: implement better, now is not working as expected)
@@ -68,25 +85,30 @@ def choose_four(seq):
 def try_guess(c_set):
     word = c_set[randint(0, 3)]
     shuffle(c_set)
-    print(f"Guess word {word['word'].upper()} \n")
     opts = []
     for i in range(len(c_set)):
         opts.append(f'{i + 1}. {c_set[i]["tr"]}')
-    print(*opts, sep='\n')
-
     return word, opts
 
 
 
 # Main block of the program #
-pairs = read_raw_doc(doc_path)
+pairs, all_pairs = read_raw_doc(doc_path, 20)
 guessed_per_session = dict()
 sums = 0
 logged = log_file_parse(log_name) if path.exists(log_name) else dict()
 
-while sums < 15:
+while sums < 5:
+    if check_all_words_learned(logged, all_pairs, max_repeats):
+        print("\n\033[97m\033[102mNo words for guessing anymore, you're such a cute learner! Go eat some buisquits.\033[0m\n")
+        break
     cur_set = choose_four(pairs)
     w, op = try_guess(cur_set)
+    if check_limit_reached(w, logged, max_repeats):
+        continue
+    print(f"Guess word {w['word'].upper()} \n")
+    print(*op, sep='\n')
+
     correctly = False
     while not correctly:
         us_in = input(f'\nHow to translate? \n')
