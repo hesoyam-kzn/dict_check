@@ -1,7 +1,7 @@
 from random import choice, randint, shuffle
-import os
+import os, sys
 from os import path, remove
-
+from datetime import datetime, timedelta
 
 # ------------- program parameters ---------------#
 doc_path = f"{os.getcwd()}\\test.csv" # Path to origin .csv with word-meaning pairs
@@ -44,17 +44,33 @@ def check_all_words_learned(logged_dic, learning_pairs, repeats):
     return False
 
 
-# Erasing existing progress data file (TODO: implement better, now is not working as expected)
-def clear_progress(args):
-    for i in range(len(args)):
-        if args[i] == "-mode":
-            if args[i+1].lower() == "c":
-                if path.exists(log_name):
-                    remove(log_name)
-            else:
-                print("Continuing with existing data about learning\n")
+# Adjusting working mode. Edit delta for decrease\increase of attempts\time per session
+def check_mode():
+    a = sys.argv
+    if "--mode" in a:
+        mode = a[a.index('--mode') + 1]
+        if mode == "timer":
+            start = datetime.now()
+            delta = timedelta(minutes=5)
+            end = start + delta
+            print(f"Timer mode enabled, you have {delta.seconds // 60} minutes\n")
+        elif mode == "counter":
+            start, delta = 0, 5
+            end = 5
+            print(f"Counter mode enabled, you have {end} shots\n")
+        else:
+            start, end, delta, mode = 0, 10, 1, "counter"
+            print(f"Default mode enabled, you have {end} shots\n")
+        return start, end, delta, mode
+    # If mode is not defined use default mode with "end" shots
+    else:
+        start, end, delta, mode = 0, 10, 1, "counter"
+        print(f"Default mode enabled, you have {end} shots\n")
+        return start, end, delta, mode
 
 
+
+# Function for work with existing log values and further modification or addition of keys and values when word is guessed
 def log_file_work(guessed_pair, inventory):
     if guessed_pair in inventory.keys():
         inventory[guessed_pair] += 1
@@ -63,6 +79,7 @@ def log_file_work(guessed_pair, inventory):
     return inventory
 
 
+# Function for parsing an existing log file and converting it into a dictionary
 def log_file_parse(file):
     words = {}
     f = open(file, "r", encoding="utf-8")
@@ -91,14 +108,14 @@ def try_guess(c_set):
     return word, opts
 
 
-
 # Main block of the program #
 pairs, all_pairs = read_raw_doc(doc_path, 20)
 guessed_per_session = dict()
-sums = 0
 logged = log_file_parse(log_name) if path.exists(log_name) else dict()
+# Defining how will we count progress (timer \ counter)
+start, end, delta, mode = check_mode()
 
-while sums < 5:
+while start < end:
     if check_all_words_learned(logged, all_pairs, max_repeats):
         print("\n\033[97m\033[102mNo words for guessing anymore, you're such a cute learner! Go eat some buisquits.\033[0m\n")
         break
@@ -123,7 +140,8 @@ while sums < 5:
                     correctly = True
                     logged = log_file_work(tmp_tup, logged)
                     guessed_per_session[tmp_tup] = guessed_per_session.setdefault(tmp_tup, 0) + 1
-                    sums += 1
+                    if mode == "counter":
+                        start += 1
                 else:
                     print('\n\033[33mYou lost, filthy liar!\033[0m\n')
                     print(f'\033[34m{w["word"].capitalize()} - {a.capitalize()}\033[0m\n')
@@ -135,7 +153,13 @@ while sums < 5:
         else:
             print("\033[31mTry once more time, empty \\ wrong character. Use 1-4 digits.\033[0m")
             continue
+    if mode == "timer" and datetime.now() < end:
+        start = datetime.now()
+        mins, secs = (end - start).seconds // 60, (end - start).seconds % 60
+        print(f'\033[0;35m\033[3mMinutes left: {mins}:{secs if len(str(secs)) == 2 else f"0{secs}"}\033[0m\033[0m\n')
+    
 else:
+    # Coloring ascii codes can be found on 
     print("\033[1m-------------------------------------------\033[0m")
     print("\033[1m--------\033[5m\033[33mSession finished for today\033[0m\033[0m---------\033[0m")
     print("\033[1m-------------------------------------------\033[0m")
