@@ -4,6 +4,6 @@
 
 3. [DONE] Add set selection for one round and number of guesses need to finish
 
-4. Add sorting and not showing already shown word in round
+4. TODO (low) Add sorting and not showing already shown word in round
 
-4. Visualize process in turle with cleaning guessed \ not guessed
+5. TODO (low) Visualize process in turle with cleaning guessed \ not guessed

@@ -153,10 +153,11 @@ while start < end:
         else:
             print("\033[31mTry once more time, empty \\ wrong character. Use 1-4 digits.\033[0m")
             continue
-    if mode == "timer" and datetime.now() < end:
+    if mode == "timer":
         start = datetime.now()
-        mins, secs = (end - start).seconds // 60, (end - start).seconds % 60
-        print(f'\033[0;35m\033[3mMinutes left: {mins}:{secs if len(str(secs)) == 2 else f"0{secs}"}\033[0m\033[0m\n')
+        if start < end:
+            mins, secs = (end - start).seconds // 60, (end - start).seconds % 60
+            print(f'\033[0;35m\033[3mMinutes left: {mins}:{secs if len(str(secs)) == 2 else f"0{secs}"}\033[0m\033[0m\n')
     
 else:
     # Coloring ascii codes can be found on 
